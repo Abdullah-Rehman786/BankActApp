@@ -80,21 +80,7 @@ namespace BankActApp
             lineOfCredit.PerformMonthEndTransactions();
             Console.WriteLine(lineOfCredit.GetAccountHistory());
 
-            Console.ReadLine(); //prevent console from exiting
-
-            var integerList = new int[] { 1, 1, 2, 3, 1, 2, 3, 4 };
-            var valuesList = new int[] { 2, 3 }; 
-
-                var intList = integerList.ToList();
-                for (int i = 0; i < valuesList.Length; i++)
-                {
-
-                    intList.RemoveAll(item => item == valuesList[i]);
-                }
-                Console.Write(intList);
-               
-
-            
+            Console.ReadLine(); //prevent console from exiting 
         }
     }
 }
