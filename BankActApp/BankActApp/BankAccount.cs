@@ -11,6 +11,7 @@ namespace BankActApp
         private static int accountNumberSeed = 1234567890;
         public string Number { get; }
         public string Owner { get; set; }
+        private readonly decimal minimumBalance;
         public decimal Balance
         {
             get
@@ -24,13 +25,17 @@ namespace BankActApp
             }
         }
 
-        public BankAccount(string name, decimal initialBalance)
+        public BankAccount(string name, decimal initialBalance) : this(name, initialBalance, 0) { }
+
+        public BankAccount(string name, decimal initialBalance, decimal minimumBalance)
         {
             this.Owner = name;
             this.Number = accountNumberSeed.ToString();
             accountNumberSeed++;
-            MakeDeposit(initialBalance, DateTime.Now, "Initial balance");
 
+            this.minimumBalance = minimumBalance;
+            if (initialBalance > 0)
+                MakeDeposit(initialBalance, DateTime.Now, "Initial balance");
         }
 
         private List<Transaction> allTransactions = new List<Transaction>();
@@ -47,16 +52,28 @@ namespace BankActApp
 
         public void MakeWithdrawal(decimal amount, DateTime date, string note)
         {
+
             if (amount <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(amount), "Amount of withdrawal must be positive");
             }
-            if (Balance - amount < 0)
+            var overdraftTransaction = CheckWithdrawalLimit(Balance - amount < minimumBalance);
+            var withdrawal = new Transaction(-amount, date, note);
+            allTransactions.Add(withdrawal);
+            if (overdraftTransaction != null)
+                allTransactions.Add(overdraftTransaction);
+        }
+
+        protected virtual Transaction CheckWithdrawalLimit(bool isOverdrawn)
+        {
+            if (isOverdrawn)
             {
                 throw new InvalidOperationException("Not sufficient funds for this withdrawal");
             }
-            var withdrawal = new Transaction(-amount, date, note);
-            allTransactions.Add(withdrawal);
+            else
+            {
+                return default;
+            }
         }
 
         public string GetAccountHistory()
@@ -72,6 +89,11 @@ namespace BankActApp
             }
 
             return report.ToString();
+        }
+
+        public virtual void PerformMonthEndTransactions()
+        {
+
         }
     }
 }
