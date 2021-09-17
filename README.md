@@ -1,3 +1,2 @@
 # BankActApp
- bank Account Console App in C# 
- test
+Bank Account Console App in C#
